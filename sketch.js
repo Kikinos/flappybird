@@ -1,122 +1,134 @@
-let bird;
-let pipes = [];
-let birdImg;
-let bgImg; // Add a variable for the background image
-let gameOver = false;
-let gameStarted = false;
-let score = 0;
-let restartButton;
-let level = 1;
+let bird; // prommena bird
+let pipes = []; //pole pro trubky
+let birdImg; //obrazzek ptaka
+let bgImg; //obrazek pozadi
+let pipeImg;
+let gameOver = false; //promenna pro konec hry
+let gameStarted = false; //promenna pro zacatek hry
+let score = 0;  //promenna pro skore
+let highScore = 0; // promenna pro nejvyssi skore
+let level = 1; //promenna pro uroven
 
-function setup() {
-    createCanvas(1000, 900); // Changed width to 900
-    bird = new Bird();
-    pipes.push(new Pipe()); // Spawn the initial pipe immediately
+function setup() { //funkce setup
+    createCanvas(1000, 900); //vytvoreni hraci plochy
+    bird = new Bird(); //vytvoreni ptaka
 }
 
-function preload() {
-    birdImg = loadImage('./img/ptacek.png');
-    bgImg = loadImage('./img/pozadi.png'); // Load the background image
+function preload() { //funkce preload - nacteni obrazku
+    birdImg = loadImage('./img/ptacek.png'); //nacteni obrazku ptaka
+    bgImg = loadImage('./img/pozadi.png'); //nacteni obrazku pozadi
+    pipeImg = loadImage('./img/Prekazka.png'); //nacteni obrazku trubky
 }
 
 function draw() {
-    image(bgImg, 0, 0, width, height); // Draw the background image to fit the canvas
+    image(bgImg, 0, 0, width, height); //vykresli obrazek pozadi
 
-    if (!gameStarted) {
-        textSize(32);
-        fill(0, 0, 0);
+    if (!gameStarted) { // Pokud hra nezacala - vypise text a ceka na stisknuti mezerniku
+        fill(0, 0, 0, 150); // semi-transparent black overlay
+        rect(0, 0, width, height); // draw overlay
+        textSize(32); 
+        fill(255);
         textAlign(CENTER, CENTER);
-        text("Press SPACE to Start", width / 2, height / 2);
+        text("Press SPACE to Start", width / 2, height / 2); //zmacknout mezernik pro start - uprostred obrazovky
         return;
     }
 
-    if (gameOver) {
-        fill(0 , 0, 0); // Change text color to red
+    if (gameOver) { //pokud hra skoncila - vypise text a ceka na stisknuti mezerniku
+        fill(0, 0, 0, 150); // semi-transparent black overlay
+        rect(0, 0, width, height); // draw overlay
         textAlign(CENTER, CENTER);
-        fill(0, 0, 0); // Change text color to red
+        fill(255, 0, 0);
         textSize(64);
-        text("Game Over!", width / 2, height / 2);
+        text("Game Over!", width / 2, height / 2 - 40); //hra skoncila
         textSize(32);
-        text("Score: " + score, width / 2, height / 2 + 40);
-        text("Level: " + level, width / 2, height / 2 + 80);
-        text("Press SPACE to Restart", width / 2, height / 2 + 120);
+        fill(255);
+        text("Score: " + score, width / 2, height / 2 + 20); //skore - 
+        text("High Score: " + highScore, width / 2, height / 2 + 60); //nejvyssi skore
+        text("Level: " + level, width / 2, height / 2 + 100); //dosazena uroven
+        text("Press SPACE to Restart", width / 2, height / 2 + 140); //zmacknout mezernik pro restart
         return;
     }
 
-    for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].show();
-        pipes[i].update();
+    for (let i = pipes.length - 1; i >= 0; i--) { //cyklus pro trubky - 
+        pipes[i].show(); //zobrazi trubky
+        pipes[i].update(); //aktualizuje trubky
 
-        if (pipes[i].hits(bird)) {
-            gameOver = true;
+        if (pipes[i].hits(bird)) { //pokud ptak narazi do trubky - hra skoncila
+            gameOver = true; // Game over
+            if (score > highScore) { //pokud skore je vetsi nez highscore - aktualizuje highscore
+                highScore = score;
+            }
         }
 
-        if (pipes[i].offscreen()) {
-            pipes.splice(i, 1);
-            score++;
-            if (score % 5 === 0) {
-                level++;
+        if (pipes[i].offscreen()) { //pokud je trubka mimo obrazovku
+            pipes.splice(i, 1); //smaze se
+            score++; //prida se skore
+            if (score % 5 === 0) { //pokud je skore nasobek 5 - uroven se zvysi
+                level++; //zvysi se uroven
             }
         }
     }
 
-    bird.update();
-    bird.show();
+    bird.update(); //aktualizuje ptaka
+    bird.show(); //zobrazi ptaka
 
     if (bird.y >= height || bird.y <= 0) {
         gameOver = true;
+        if (score > highScore) { //pokud skore je vetsi nez highscore - aktualizuje highscore
+            highScore = score; //aktualizuje highscore
+        }
     }
 
-    if (gameStarted && frameCount % (60 * 1.5) == 0) { // 60 frames per second * 1.5 seconds
-        pipes.push(new Pipe());
+    if (frameCount % 90 == 0) { //pokud zacala hra a snimky jsou delitelne 90
+        pipes.push(new Pipe()); //prida se nova trubka
     }
 
     textSize(32);
     fill(255);
-    text("Score: " + score, 75, 30); // Ensure score is within canvas
-    text("Level: " + level, 75, 60); // Display level
+    text("Score: " + score, 75, 30); //vypise skore
+    text("High Score: " + highScore, 115, 60); // vypise nejvyssi skore
+    text("Level: " + level, 75, 90); //vypise uroven
 }
 
 function keyPressed() {
-    if (key == ' ' && !gameStarted) {
-        gameStarted = true;
-    } else if (key == ' ' && gameOver) {
+    if (key == ' ' && !gameStarted) { //pokud zmackneme mezernik a hra nezacala
+        gameStarted = true; //hra zacne
+    } else if (key == ' ' && gameOver){ //pokud zmackneme mezernik a hra skoncila
         restartGame();
-    } else if (key == ' ' && !gameOver) {
-        bird.up();
+    } else if (key == ' ' && !gameOver) { //pokud zmackneme mezernik a hra nekoncila
+        bird.up(); //ptak vyleti nahoru
     }
 }
 
 function restartGame() {
-    gameOver = false;
-    gameStarted = false;
-    score = 0;
-    level = 1;
-    pipes = [];
-    bird = new Bird();
-    pipes.push(new Pipe());
-    restartButton.hide();
+    gameOver = false; //hra neskoncila
+    gameStarted = true; //hra zacne
+    score = 0; //skore se vynuluje
+    level = 1; //uroven se vynuluje 
+    pipes = []; //pole pro trubky se vynuluje
+    bird = new Bird(); //vytvori se novy ptak
+    pipes.push(new Pipe()); //prida se nova trubka
 }
 
-class Bird {
-    constructor() {
-        this.y = height / 2;
-        this.x = 64;
-        this.gravity = 1;
-        this.lift = -25;
-        this.velocity = 0;
+class Bird { //trida Bird
+    constructor() { //konstruktor
+        this.y = height / 2; //vyska ptaka
+        this.x = 64; //sirka ptaka
+        this.gravity = 1; //gravitace
+        this.lift = -25; //zvednuti
+        this.velocity = 0; //zrychleni
     }
 
-    show() {
-        image(birdImg, this.x, this.y, 64, 64); // Increased size to 64x64
+    show() { 
+        image(birdImg, this.x, this.y, 64, 64); //zobrazi ptaka
     }
 
     up() {
-        this.velocity += this.lift;
+        this.velocity += this.lift; // zvedne ptaka
     }
 
     update() {
-        this.velocity += this.gravity;
+        this.velocity += this.gravity; //zrychleni ptaka
         this.velocity *= 0.9;
         this.y += this.velocity;
 
@@ -134,18 +146,18 @@ class Bird {
 
 class Pipe {
     constructor() {
-        this.spacing = 175 - level * 5; // Decrease spacing with level
+        this.spacing = 175 - level * 5;
         this.top = random(height / 6, (3 / 4) * height);
         this.bottom = height - (this.top + this.spacing);
         this.x = width;
-        this.w = 40; // Increased width to 40
-        this.speed = 6 + level * 0.5; // Increase speed with level
+        this.w = 60;
+        this.speed = 6 + level * 0.5;
     }
 
     hits(bird) {
         let birdWidth = 48;
         let birdHeight = 48;
-        let hitboxPadding = 5; // Reduce hitbox size by 5 pixels on each side
+        let hitboxPadding = 5;
         if (bird.x + birdWidth - hitboxPadding > this.x && bird.x + hitboxPadding < this.x + this.w) {
             if (bird.y + hitboxPadding < this.top || bird.y + birdHeight - hitboxPadding > height - this.bottom) {
                 return true;
@@ -155,9 +167,8 @@ class Pipe {
     }
 
     show() {
-        fill(0, 255, 0);
-        rect(this.x, 0, this.w, this.top);
-        rect(this.x, height - this.bottom, this.w, this.bottom);
+        image(pipeImg, this.x, 0, this.w, this.top, 0, 0, pipeImg.width, pipeImg.height);
+        image(pipeImg, this.x, height - this.bottom, this.w, this.bottom, 0, 0, pipeImg.width, pipeImg.height);
     }
 
     update() {
@@ -165,6 +176,10 @@ class Pipe {
     }
 
     offscreen() {
+        return this.x < -this.w;
+    }
+}
+
         return this.x < -this.w;
     }
 }
