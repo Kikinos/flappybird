@@ -9,8 +9,8 @@ let score = 0; // proměnná pro aktuální skóre
 let highScore = 0; // proměnná pro nejvyšší dosažené skóre
 let level = 1; // proměnná pro aktuální úroveň hry
 
-function setup() { // inicializační funkce
-    createCanvas(800, 800); // vytvoření plátna o rozměrech 800x800 pixelů
+function setup() {
+    createCanvas(900, 650); // vytvoření plátna o rozměrech 900x650 pixelů
     bird = new Bird(); // vytvoření nového objektu ptáka
     pipes.push(new Pipe()); // přidání první trubky do pole trubek
 }
@@ -90,7 +90,7 @@ function draw() { // hlavní funkce vykreslování
     text("Level: " + level, 75, 90); // vykreslení aktuální úrovně
 }
 
-function keyPressed() { // obsluha klávesových vstupů
+function keyPressed() { // klávesy
     if (key == ' ' && !gameStarted) { // mezerník při nezahájené hře
         gameStarted = true; // hra začne
         frameCount = 0; // resetuje počítadlo snímků
@@ -131,7 +131,7 @@ class Bird { // třída Bird (pták)
 
     update() { 
         this.velocity += this.gravity; // přidání gravitace k rychlosti
-        this.velocity *= 0.9; // simulace odporu vzduchu
+        this.velocity *= 0.9;
         this.y += this.velocity; // změna výšky podle rychlosti
 
         if (this.y > height) { // zabránění pádu mimo obrazovku
