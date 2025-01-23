@@ -160,8 +160,8 @@ class Pipe { // třída Pipe (trubka)
         let birdWidth = 48; 
         let birdHeight = 48; 
         let hitboxPadding = 5; 
-        if (bird.x + birdWidth - hitboxPadding > this.x && bird.x + hitboxPadding < this.x + this.w) {
-            if (bird.y + hitboxPadding < this.top || bird.y + birdHeight - hitboxPadding > height - this.bottom) {
+        if (bird.x + birdWidth - hitboxPadding > this.x && bird.x + hitboxPadding < this.x + this.w) { //kontrola jestli je pták uvnitř trubky
+            if (bird.y + hitboxPadding < this.top || bird.y + birdHeight - hitboxPadding > height - this.bottom) { //kontrola jestli pták narazil do trubky (horní hitbox ptáka je výš než spodní část horní trubky a naopak)
                 return true; // kolize detekována
             }
         }
